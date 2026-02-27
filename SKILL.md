@@ -143,7 +143,25 @@ Complex designs: paste in sections to avoid clipboard limits.
 pencil --agent-config config.json
 ```
 
-Config: `[{file, prompt, model, attachments}]`. The .pen file must already exist.
+Config is a JSON array — each entry opens a **separate Pencil window** running its own agent:
+
+```json
+[
+  {"file": "./screen1.pen", "prompt": "Design a dashboard", "model": "claude-4.5-sonnet"},
+  {"file": "./screen2.pen", "prompt": "Design a login page", "model": "claude-4.5-haiku"},
+  {"file": "./screen3.pen", "prompt": "Design settings", "model": "claude-4.5-haiku"}
+]
+```
+
+**Multi-agent parallel design**:
+- Each entry = independent window + independent Claude API call
+- No documented concurrency limit (tested up to 6)
+- `.pen` files must be pre-created (CLI cannot create new files)
+- Use `haiku` for simple screens, `sonnet`/`opus` for complex ones
+- Bottleneck: RAM per window + API rate limit, not Pencil itself
+- Headless CLI (no GUI) coming soon — better for large-scale parallel runs
+
+Pre-create empty files: `for i in {1..6}; do echo '{}' > "screen${i}.pen"; done`
 
 ### Token Optimization
 
