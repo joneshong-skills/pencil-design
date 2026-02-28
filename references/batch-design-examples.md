@@ -82,13 +82,46 @@ Use `replace_all_matching_properties` (separate tool, not batch_design):
 
 ## Card Grid Layout
 
+> **Warning**: `wrap: true` does NOT reliably produce CSS-like flex wrapping in Pencil.
+> Use explicit row frames instead:
+
 ```
-grid=I("parentId", {type: "frame", name: "CardGrid", layout: "horizontal", gap: 16, wrap: true, width: "fill_container"})
-c1=I(grid, {type: "ref", ref: "CardCompId", width: 300})
-c2=I(grid, {type: "ref", ref: "CardCompId", width: 300})
-c3=I(grid, {type: "ref", ref: "CardCompId", width: 300})
-c4=I(grid, {type: "ref", ref: "CardCompId", width: 300})
+grid=I("parentId", {type: "frame", name: "CardGrid", layout: "vertical", gap: 16, width: "fill_container"})
+row1=I(grid, {type: "frame", name: "Row1", layout: "horizontal", gap: 16})
+c1=I(row1, {type: "ref", ref: "CardCompId", width: "fill_container"})
+c2=I(row1, {type: "ref", ref: "CardCompId", width: "fill_container"})
+c3=I(row1, {type: "ref", ref: "CardCompId", width: "fill_container"})
+row2=I(grid, {type: "frame", name: "Row2", layout: "horizontal", gap: 16})
+c4=I(row2, {type: "ref", ref: "CardCompId", width: "fill_container"})
+c5=I(row2, {type: "ref", ref: "CardCompId", width: "fill_container"})
 ```
+
+## Multi-Screen Sidebar (Reusable + Per-Screen Active State)
+
+Create a reusable sidebar, then instantiate per screen with active state overrides:
+
+**Step 1 — Create reusable sidebar:**
+```
+sidebar=I(document, {type: "frame", name: "Sidebar", reusable: true, layout: "vertical", width: 240, height: 900, fill: "#111111", padding: [24, 16, 24, 16], gap: 8})
+nav1=I(sidebar, {type: "ref", ref: "NavItemCompId"})
+U(nav1+"/icon", {icon: "layout-dashboard"})
+U(nav1+"/label", {content: "Dashboard"})
+nav2=I(sidebar, {type: "ref", ref: "NavItemCompId"})
+U(nav2+"/icon", {icon: "file-text"})
+U(nav2+"/label", {content: "Reports"})
+```
+
+**Step 2 — Instance per screen with active override:**
+```
+sb=I("screenFrameId", {type: "ref", ref: "SidebarId"})
+U(sb+"/nav1/label", {opacity: 1, fill: "#C9A962"})
+```
+
+Key patterns:
+- D() on reusable child → removes from ALL instances (no per-screen cleanup needed)
+- Adding children to reusable → instances inherit structure, but NOT property overrides
+- Active state = per-instance opacity/fill override on the specific nav item
+- When sidebar nav changes, update EACH screen's instance separately
 
 ## Navigation Bar
 

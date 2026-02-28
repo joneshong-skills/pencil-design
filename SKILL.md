@@ -27,8 +27,48 @@ visual verification, and design-to-code export.
 ## Agent Delegation
 
 This skill runs in **main context** — MCP tool calls require ToolSearch which only
-main context and `general-purpose` agents have. For large multi-screen designs,
-delegate individual screens to `general-purpose` sub-agents with explicit instructions.
+main context and `general-purpose` agents have.
+
+### Multi-Screen Orchestration (Auto-Trigger)
+
+**When to trigger**: Design involves 2+ screens/sections, OR user says "parallel" / "多工" / "同時".
+
+**User provides only**: A design description (e.g., "Design a SaaS dashboard app with dark theme").
+The skill autonomously decides: how many screens, what each section contains, how to parallelize.
+
+**File strategy** (aligned with Figma community best practices):
+- **Default: Single .pen file** — one file per module/project, organize by canvas sections
+- **Split to multi-file only when**: pages/sections exceed ~10, OR performance degrades noticeably
+- Rationale: single-file keeps components/tokens consistent, avoids cross-file sync overhead
+
+#### Mode A: Single-File Sub-Agent (Default)
+
+Multiple agents work on different **canvas sections** within ONE .pen file:
+
+1. **Analyze** — Decompose description into N independent sections (screens/pages)
+2. **Prepare shared context** (main context):
+   - `get_editor_state` + `batch_get(reusable: true)` + `get_variables`
+   - `find_empty_space_on_canvas` → plan N non-overlapping placement zones
+   - Collect: design tokens, component refs, style guide choice
+3. **Spawn N parallel `general-purpose` agents**, each with:
+   - `ToolSearch(query: "+pencil")` to load MCP tools
+   - Target section coordinates (x, y, width, height from step 2)
+   - Full shared context: tokens, component refs, style guide name
+   - Explicit batch_design instructions for their section only
+   - Output constraint: "Return node IDs created and any issues encountered."
+4. **Verify** (main context): `get_screenshot` + `snapshot_layout(problemsOnly: true)` per section
+
+#### Mode B: Multi-File CLI Parallel (Overflow)
+
+Only when sections > 10 or user explicitly requests separate files.
+Reference `references/config.template.json` for entry schema and model selection guide.
+
+1. **Analyze** — Decompose into N screens, assign model per complexity
+2. **Setup**: `mkdir -p ~/workshop/outputs/pencil-parallel/screens`
+3. **Pre-create**: `for s in <names>; do echo '{}' > .../screens/${s}.pen; done`
+4. **Generate** `config.json` — N entries, each with: file path, detailed prompt, model
+5. **Launch**: `cd ~/workshop/outputs/pencil-parallel && pencil --agent-config config.json`
+6. **Verify** — Open each .pen, `get_screenshot` to check
 
 ## Design Workflow
 
@@ -91,11 +131,21 @@ Seven operations, max 25 per call. Operations execute sequentially; any failure 
 Copy gives all descendants **new IDs**. Do NOT `U()` on copied children — use the
 `descendants` parameter in the Copy call itself to modify children during copy.
 
+### Move Gotcha
+
+`M()` requires **real persisted node IDs**, not binding variables from `I()` in the same call.
+If you need to reorder newly inserted nodes, do it in a **subsequent** batch_design call.
+
+### flexWrap Gotcha
+
+`wrap: true` / `flexWrap: "wrap"` on horizontal layouts does NOT reliably produce CSS-like
+wrapping. Use **explicit row frames** instead (see `references/batch-design-examples.md`).
+
 ## Critical Rules
 
 1. **Reuse components** — Always `batch_get(reusable: true)` first, insert via `ref`
 2. **Use variables** — Reference token names, not hex values
-3. **Prevent text overflow** — Set wrap, constrain width, use `fill_container`
+3. **Prevent text overflow** — Text nodes need BOTH `width: "fill_container"` AND `textAutoResize: "height"`
 4. **Verify every section** — `get_screenshot` + `snapshot_layout(problemsOnly: true)`
 5. **No image node type** — Images are fills on frame/rectangle via `G()`
 6. **Semantic naming** — `UserAvatarImage` not `Frame 42`
@@ -143,25 +193,14 @@ Complex designs: paste in sections to avoid clipboard limits.
 pencil --agent-config config.json
 ```
 
-Config is a JSON array — each entry opens a **separate Pencil window** running its own agent:
+Template: `references/config.template.json` — copy, modify entries, execute.
+See **Agent Delegation → Multi-Screen Orchestration** for the full automated procedure.
 
-```json
-[
-  {"file": "./screen1.pen", "prompt": "Design a dashboard", "model": "claude-4.5-sonnet"},
-  {"file": "./screen2.pen", "prompt": "Design a login page", "model": "claude-4.5-haiku"},
-  {"file": "./screen3.pen", "prompt": "Design settings", "model": "claude-4.5-haiku"}
-]
-```
-
-**Multi-agent parallel design**:
-- Each entry = independent window + independent Claude API call
-- No documented concurrency limit (tested up to 6)
-- `.pen` files must be pre-created (CLI cannot create new files)
-- Use `haiku` for simple screens, `sonnet`/`opus` for complex ones
-- Bottleneck: RAM per window + API rate limit, not Pencil itself
-- Headless CLI (no GUI) coming soon — better for large-scale parallel runs
-
-Pre-create empty files: `for i in {1..6}; do echo '{}' > "screen${i}.pen"; done`
+**Constraints**:
+- Each entry = independent Pencil window + independent Claude API call
+- Max tested concurrency: 6 windows (bottleneck: RAM + API rate limit)
+- `.pen` files must be pre-created (`echo '{}' > screen.pen`)
+- Model selection: `claude-opus-4-6` / `claude-4.5-sonnet` for complex, `claude-4.5-haiku` for simple
 
 ### Token Optimization
 
@@ -179,5 +218,6 @@ Pre-create empty files: `for i in {1..6}; do echo '{}' > "screen${i}.pen"; done`
 ## Additional Resources
 
 ### Reference Files
+- **`references/config.template.json`** — Multi-agent CLI config template (copy + modify per task)
 - **`references/batch-design-examples.md`** — Common batch_design patterns and recipes
 - **`references/troubleshooting.md`** — Known issues, gotchas, and workarounds

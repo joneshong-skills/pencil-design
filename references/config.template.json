@@ -1,0 +1,20 @@
+{
+  "$schema": "Pencil CLI --agent-config entry schema. Generate N entries dynamically based on task analysis.",
+  "entry": {
+    "file": "./screens/{screen-name}.pen",
+    "prompt": "Design a {description}. Use {design-system} design system, {theme} theme. Include: {layout-requirements}.",
+    "model": "claude-4.5-sonnet | claude-4.5-haiku | claude-opus-4-6"
+  },
+  "model_selection": {
+    "claude-opus-4-6": "Hero/showcase screens, complex data visualizations, critical first impressions",
+    "claude-4.5-sonnet": "Primary screens with moderate complexity (dashboard, forms, profiles)",
+    "claude-4.5-haiku": "Simple/repetitive screens (login, settings, empty states, confirmations)"
+  },
+  "prompt_checklist": [
+    "Screen purpose and user goal",
+    "Design system (Shadcn UI / Halo / Lunaris / Nitro)",
+    "Theme (light / dark) and color palette",
+    "Layout structure (sidebar, header, grid, tabs, etc.)",
+    "Key components and content expectations"
+  ]
+}
