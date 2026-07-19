@@ -1,15 +1,10 @@
 ---
 name: pencil-design
-description: >-
-  This skill should be used when the user asks to "design in pencil", "create .pen",
-  "pencil design", "edit .pen file", "design a page", "design a screen",
-  "vibe coding", "design to code", "pencil workflow", "Pencil 設計",
-  "建立 .pen 檔案", "編輯 .pen", "設計畫面", "設計頁面",
-  or discusses working with .pen files, Pencil MCP tools, or IDE-native design.
-  Expert assistant for Pencil.dev — AI-native vector design in IDE via MCP.
+description: "design, pencil, pen, create, edit, page, screen, Pencil 設計, 建立 .pen 檔案, 編輯 .pen, 設計畫面"
 version: 0.1.0
 tools: ToolSearch, mcp__pencil__get_editor_state, mcp__pencil__batch_get, mcp__pencil__batch_design, mcp__pencil__get_screenshot, mcp__pencil__snapshot_layout, mcp__pencil__get_guidelines, mcp__pencil__get_style_guide, mcp__pencil__get_style_guide_tags, mcp__pencil__get_variables, mcp__pencil__set_variables, mcp__pencil__find_empty_space_on_canvas, mcp__pencil__open_document, mcp__pencil__search_all_unique_properties, mcp__pencil__replace_all_matching_properties
 argument-hint: "Describe the design you want to create or edit"
+disable-model-invocation: true
 ---
 
 # Pencil Design

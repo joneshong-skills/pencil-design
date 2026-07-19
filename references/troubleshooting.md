@@ -7,7 +7,7 @@ Common issues and workarounds for Pencil MCP tool usage.
 ### "Tool not found" or MCP tools unavailable
 - **Cause**: Pencil app not running, or started after Claude Code
 - **Fix**: Open Pencil Desktop/Extension FIRST, then restart Claude Code
-- Also run `ToolSearch(query: "+pencil")` to load deferred tools
+- Also run `mcp__mcpproxy__retrieve_tools(server_name: "pencil")` to load deferred tools
 
 ### Authentication errors
 - Ensure `claude` CLI is logged in (`claude login`)

@@ -3,12 +3,12 @@
   "entry": {
     "file": "./screens/{screen-name}.pen",
     "prompt": "Design a {description}. Use {design-system} design system, {theme} theme. Include: {layout-requirements}.",
-    "model": "claude-4.5-sonnet | claude-4.5-haiku | claude-opus-4-6"
+    "model": "claude-sonnet-4-5 | claude-haiku-4-5-20251001 | claude-opus-4-6"
   },
   "model_selection": {
     "claude-opus-4-6": "Hero/showcase screens, complex data visualizations, critical first impressions",
-    "claude-4.5-sonnet": "Primary screens with moderate complexity (dashboard, forms, profiles)",
-    "claude-4.5-haiku": "Simple/repetitive screens (login, settings, empty states, confirmations)"
+    "claude-sonnet-4-5": "Primary screens with moderate complexity (dashboard, forms, profiles)",
+    "claude-haiku-4-5-20251001": "Simple/repetitive screens (login, settings, empty states, confirmations)"
   },
   "prompt_checklist": [
     "Screen purpose and user goal",
