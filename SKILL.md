@@ -58,10 +58,10 @@ Only when sections > 10 or user explicitly requests separate files.
 Reference `references/config.template.json` for entry schema and model selection guide.
 
 1. **Analyze** — Decompose into N screens, assign model per complexity
-2. **Setup**: `mkdir -p ~/workshop/outputs/pencil-parallel/screens`
+2. **Setup**: `mkdir -p ~/.claude/outputs/pencil-parallel/screens`
 3. **Pre-create**: `for s in <names>; do echo '{}' > .../screens/${s}.pen; done`
 4. **Generate** `config.json` — N entries, each with: file path, detailed prompt, model
-5. **Launch**: `cd ~/workshop/outputs/pencil-parallel && pencil --agent-config config.json`
+5. **Launch**: `cd ~/.claude/outputs/pencil-parallel && pencil --agent-config config.json`
 6. **Verify** — Open each .pen, `get_screenshot` to check
 
 ## Design Workflow
